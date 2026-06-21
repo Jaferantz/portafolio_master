@@ -1,0 +1,26 @@
+﻿# Core dependencies
+streamlit>=1.28.0
+numpy>=1.24.0
+pandas>=1.5.0
+scipy>=1.10.0
+
+# Machine Learning / Statistics
+scikit-learn>=1.3.0
+hmmlearn>=0.2.8
+
+# Binance API
+python-binance>=1.0.17
+
+# Telegram
+python-telegram-bot>=20.0
+
+# Visualization
+plotly>=5.17.0
+
+# Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+
+# Additional (if needed)
+matplotlib>=3.7.0
+seaborn>=0.12.0
