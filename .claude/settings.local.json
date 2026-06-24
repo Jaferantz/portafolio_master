@@ -1,0 +1,42 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway volume --service 3c8dc337-bea2-4249-a612-b112de9080a8 add --mount-path /app/state)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway logs)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && \\(Get-Content Dockerfile\\).ForEach\\({ $_ -replace 'ENV PATH=\"/root/.local/bin:\\\\${PATH}\"', 'ENV PATH=\"/root/.local/bin:$PATH\"' }\\) | Set-Content Dockerfile)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Get-Content Dockerfile)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway up --detach)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway service list)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway up --service 3c8dc337-bea2-4249-a612-b112de9080a8 --detach)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && > Dockerfile)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Clear-Content Dockerfile)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'FROM python:3.11-slim')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'WORKDIR /app')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'RUN curl -LsSf https://astral.sh/uv/install.sh | sh')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'ENV PATH=\"/root/.local/bin:$PATH\"')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'COPY pyproject.toml ./')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'COPY hermes_trading ./hermes_trading')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'COPY state ./state')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'RUN uv sync')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'ENV HERMES_TRADING_MODE=paper')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && Add-Content -Path Dockerfile -Value 'CMD [\"uv\", \"run\", \"python\", \"-m\", \"hermes_trading.run\"]')",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway logs --tail 20)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading\\\\hermes_trading\\\\adapters && Get-Content price.py)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading\\\\hermes_trading\\\\adapters && Get-Content price.py -Tail 5)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading\\\\hermes_trading\\\\adapters && Get-Content onchain.py -Tail 5)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading\\\\hermes_trading\\\\adapters && Get-Content news.py -Tail 5)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading\\\\hermes_trading\\\\adapters && Get-Content macro.py -Tail 5)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway status)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway logs --line 20)",
+      "PowerShell(cd $env:USERPROFILE\\\\hermes-trading && railway logs --lines 20)",
+      "Bash(python *)",
+      "Bash(Start-Process python *)",
+      "Bash(kill %1 *)",
+      "Bash(pip install *)",
+      "Bash(pkill *)",
+      "Bash(Stop-Process *)",
+      "Bash(taskkill *)",
+      "Bash(Start-Process *)"
+    ]
+  }
+}

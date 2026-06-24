@@ -1,0 +1,25 @@
+{
+  "timestamp": "21:27:52",
+  "price": 64230.43,
+  "regime": "bear",
+  "trend": "down",
+  "signal": "SELL",
+  "iv": 0.3014886171664347,
+  "delta": 0.146707,
+  "gamma": -0.000842,
+  "ofi": -0.3351,
+  "bid_vol": 4.6096,
+  "ask_vol": 9.2566,
+  "pressure": -0.4195,
+  "pnl": 0.3293388000000004,
+  "balance": 280.3293,
+  "has_position": true,
+  "position_details": {
+    "signal": "SELL",
+    "entry": 64230.43,
+    "lots": 4e-05,
+    "sl": 64551.58,
+    "tp": 63716.59,
+    "unrealized_pnl": 0.0
+  }
+}
