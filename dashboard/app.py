@@ -234,6 +234,45 @@ with st.expander("📋 Ver Log de Trading Reciente"):
 
 ---
 🚀 How to deploy the fix
+
+1. Replace the file
+Overwrite portfolio_master/dashboard/app.py with the code above (you can keep a backup of the old version if you wish).
+2. Commit & push (if you’re using Git for Streamlit Cloud):
+│ Script never returned → DOM manipulation     │ Script returns after each render; Streamlit safely reconciles the    │
+│ errors                                       │ component tree                                                       │
+├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ Manual placeholder handling (placeholder =   │ No placeholder needed; Streamlit reruns the whole script cleanly     │
+│ st.empty())                                  │                                                                      │
+├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
+│ Possible stale state if the loop was         │ Fresh state read on every rerun (guaranteed by the file read at the  │
+│ interrupted                                  │ top)                                                                 │
+└──────────────────────────────────────────────┴──────────────────────────────────────────────────────────────────────┘
+
+---
+🚀 How to deploy the fix
+
+1. Replace the file
+Overwrite portfolio_master/dashboard/app.py with the code above (you can keep a backup of the old version if you wish).
+2. Commit & push (if you’re using Git for Streamlit Cloud):
+
+git add portfolio_master/dashboard/app.py
+git commit -m "Fix dashboard: replace blocking while loop with st.autorefresh"
+git push origin main   # or whichever branch you use for Cloud
+3. Wait for Streamlit Cloud to rebuild
+The platform detects the push, reinstalls dependencies (if requirements.txt changed—not needed here), and restarts the app. The error should disappear within ~30‑60 seconds.
+4. Verify
+Open your Streamlit Cloud URL (e.g., https://portfoliomaster-antzorg.streamlit.app). You should see the dashboard updating every few seconds without the red error banner.
+
+---
+📌 Additional tips for a rock‑solid dashboard
+
+Tip: Use st.cache_data for expensive reads
+Why it helps: Reading the JSON file is cheap, but if you later add heavier logic (e.g., loading a large CSV of historical
+    title="Precio Actual con Niveles de SL/TP",
+    xaxis_title="Hora",
+    yaxis_title="Precio (USDT)",
+    height=300,
+    showlegend=True,
 )
 
 st.plotly_chart(fig, use_container_width=True)
@@ -252,6 +291,17 @@ with st.expander("📋 Ver Log de Trading Reciente"):
             st.info("Aún no hay operaciones registradas")
     except Exception as e:
         st.error(f"Error leyendo el log: {e}")
+
+# ----------------------------------------------------------------------
+# End of script – Streamlit will now wait REFRESH_INTERVAL_MS and rerun
+# ----------------------------------------------------------------------
+├──────────────────────────────────────────
+---
+How to apply: @st.cache_data(ttl=10)\ndef l
+Tip: Limit log file growth
+Why it helps: trade_log.csv can grow indefi
+Tip: Show a timestamp
+Why it helps: Lets users know the data is t
 
 # ----------------------------------------------------------------------
 # End of script – Streamlit will now wait REFRESH_INTERVAL_MS and rerun
