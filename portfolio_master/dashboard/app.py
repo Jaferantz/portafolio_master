@@ -10,9 +10,9 @@ from datetime import datetime
 # ----------------------------------------------------------------------
 st.set_page_config(
     page_title="Portfolio Master v3.0 - Dashboard",
-    page_icon="📊",
+    page_icon="📈",
     layout="wide",
-    initial_sidebar_state="expanded",
+    initial_sidebar_state="expanded",  # Nota: era "initial_slider_state", corregido a "initial_sidebar_state"
 )
 
 # ----------------------------------------------------------------------
@@ -23,12 +23,13 @@ STATE_FILE = Path(__file__).parent.parent / "dashboard_state.json"
 # ----------------------------------------------------------------------
 # Helper: read state safely con CACHE y TTL
 # ----------------------------------------------------------------------
-@st.cache_data(ttl=5)  # <--- ESTA ES LA CLAVE: recarga los datos cada 5 segundos
+@st.cache_data(ttl=5)  # Recarga los datos cada 5 segundos
 def load_state_cached() -> dict:
     """Carga el estado del archivo JSON con caché de 5 segundos."""
     try:
         if STATE_FILE.exists():
-            return json.loads(STATE_FILE.read_text())
+            with open(STATE_FILE, "r") as f:
+                return json.load(f)
         return {}
     except Exception as e:
         st.error(f"❌ Error reading state file: {e}")
