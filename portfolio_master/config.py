@@ -32,8 +32,8 @@ CONFIG = {
     "take_profit_pct":  0.008,       # ← 0.8% take profit
     "testnet":          False,
     "runtime_mode":     "paper",
-    "binance_key":      _env_first("PM_BINANCE_API_KEY", "BINANCE_API_KEY"),
-    "binance_secret":   _env_first("PM_BINANCE_API_SECRET", "BINANCE_API_SECRET"),
+    "binance_key":      _env_first("PM_BINANCE_API_KEY", "OWuazJOcJ79i0bzB7znoOb22LRKxfVW7UtSHhvJ17aBtWw8KHxzvv2nFsCNaMr9S"),
+    "binance_secret":   _env_first("PM_BINANCE_API_SECRET", "oDP4CtZBWnqcG5vDvMIJxMEV1BN8pY3dBgm8V36u8tIyFT9fpTm3NoTenzCzHEEO"),
     "telegram_token":   _env_first("PM_TELEGRAM_TOKEN", "8775999965:AAFuExSxYfDJ0OPROuUl0GPvf4Mng20WTC0"),
     "telegram_chat_id": _env_first("PM_TELEGRAM_CHAT_ID", "318731893"),
     "report_hour":      8,
