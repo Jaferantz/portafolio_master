@@ -10,7 +10,7 @@ from datetime import datetime
 # ----------------------------------------------------------------------
 st.set_page_config(
     page_title="Portfolio Master v3.0 - Dashboard",
-    page_icon="📊",
+    page_icon="📈",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -19,36 +19,33 @@ st.set_page_config(
 # Constants
 # ----------------------------------------------------------------------
 STATE_FILE = Path(__file__).parent.parent / "dashboard_state.json"
-REFRESH_INTERVAL_MS = 5_000  # 5 seconds → matches your original sleep(5)
 
 # ----------------------------------------------------------------------
-# Helper: read state safely
+# Helper: read state safely con CACHE y TTL
 # ----------------------------------------------------------------------
-def load_state() -> dict:
+@st.cache_data(ttl=5)  # Recarga los datos cada 5 segundos
+def load_state_cached() -> dict:
+    """Carga el estado del archivo JSON con caché de 5 segundos."""
     try:
         if STATE_FILE.exists():
-            return json.loads(STATE_FILE.read_text())
+            with open(STATE_FILE, "r") as f:
+                return json.load(f)
         return {}
     except Exception as e:
         st.error(f"❌ Error reading state file: {e}")
         return {}
 
 # ----------------------------------------------------------------------
-# Auto‑refresh – Streamlit will rerun the script every REFRESH_INTERVAL_MS
+# Load latest state (se recarga automáticamente cada 5s por el TTL)
 # ----------------------------------------------------------------------
-st.autorefresh(interval=REFRESH_INTERVAL_MS, key="datarefresh")
-
-# ----------------------------------------------------------------------
-# Load latest state
-# ----------------------------------------------------------------------
-state = load_state()
+state = load_state_cached()
 
 # ----------------------------------------------------------------------
 # Title & caption
 # ----------------------------------------------------------------------
 st.title("📊 PORTFOLIO MASTER v3.0 - Dashboard en Tiempo Real")
 st.caption(
-    f"Actualizando cada {REFRESH_INTERVAL_MS/1000:.0f} s • "
+    f"Actualizando cada 5 s • "
     f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}"
 )
 
@@ -57,7 +54,7 @@ st.caption(
 # ----------------------------------------------------------------------
 if not state:
     st.info("⏳ Esperando datos del sistema de trading…")
-    st.stop()  # prevents the rest of the script from running on empty state
+    st.stop()
 
 # ----------------------------------------------------------------------
 # MAIN METRICS
@@ -77,11 +74,7 @@ with c2:
     st.metric(
         label="🧭 Régimen de Mercado",
         value=f"{regime_emoji} {regime}",
-        delta=(
-            f"Conf: {state.get('conf', 0):.0%}"
-            if "conf" in state
-            else None
-        ),
+        delta=f"Conf: {state.get('conf', 0):.0%}" if "conf" in state else None,
     )
 
 with c3:
@@ -89,21 +82,10 @@ with c3:
 
 with c4:
     signal = state.get("signal", "NONE")
-    signal_color = (
-        "green"
-        if signal == "BUY"
-        else "red"
-        if signal == "SELL"
-        else "gray"
-    )
     st.metric(
         label="🎯 Señal Actual",
-        value=f"::<span style='color:{signal_color}'>{signal}</span>",
-        help=(
-            "Delta: {:.4f} | Gamma: {:.6f}".format(
-                state.get("delta", 0), state.get("gamma", 0)
-            )
-        ),
+        value=signal,
+        help=f"Delta: {state.get('delta', 0):.4f} | Gamma: {state.get('gamma', 0):.6f}",
     )
 
 # ----------------------------------------------------------------------
@@ -151,12 +133,11 @@ with ti4:
     )
 
 # ----------------------------------------------------------------------
-# PRICE CHART (current price + SL/TP if a position exists)
+# PRICE CHART
 # ----------------------------------------------------------------------
 st.subheader("📈 Vista General")
 fig = go.Figure()
 
-# Current price as a single marker
 fig.add_trace(
     go.Scatter(
         x=[state.get("timestamp", "")],
@@ -167,23 +148,10 @@ fig.add_trace(
     )
 )
 
-# Add SL/TP lines when a position is open
 if state.get("has_position") and state.get("position_details"):
     pos = state["position_details"]
-    fig.add_hline(
-        y=pos["sl"],
-        line_dash="dash",
-        line_color="red",
-        annotation_text="SL",
-        annotation_position="bottom right",
-    )
-    fig.add_hline(
-        y=pos["tp"],
-        line_dash="dash",
-        line_color="green",
-        annotation_text="TP",
-        annotation_position="top right",
-    )
+    fig.add_hline(y=pos["sl"], line_dash="dash", line_color="red", annotation_text="SL")
+    fig.add_hline(y=pos["tp"], line_dash="dash", line_color="green", annotation_text="TP")
 
 fig.update_layout(
     title="Precio Actual con Niveles de SL/TP",
@@ -196,14 +164,13 @@ fig.update_layout(
 st.plotly_chart(fig, use_container_width=True)
 
 # ----------------------------------------------------------------------
-# RECENT TRADE LOG (optional)
+# RECENT TRADE LOG
 # ----------------------------------------------------------------------
 with st.expander("📋 Ver Log de Trading Reciente"):
     try:
         log_path = Path(__file__).parent.parent / "trade_log.csv"
         if log_path.exists():
             df = pd.read_csv(log_path)
-            # show the last 5 rows, newest on top
             st.dataframe(df.tail(5).iloc[::-1], use_container_width=True)
         else:
             st.info("Aún no hay operaciones registradas")
@@ -211,48 +178,8 @@ with st.expander("📋 Ver Log de Trading Reciente"):
         st.error(f"Error leyendo el log: {e}")
 
 # ----------------------------------------------------------------------
-# End of script – Streamlit will now wait REFRESH_INTERVAL_MS and rerun
+# Botón para forzar actualización manual (opcional)
 # ----------------------------------------------------------------------
-
-🔑 What changed?
-
-┌──────────────────────────────────────────────┬──────────────────────────────────────────────────────────────────────┐
-│                    Before                    │                                After                                 │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
-│ while True: loop with time.sleep(5)          │ st.autorefresh(interval=5000, key="datarefresh") + st.stop() when no │
-│                                              │  data                                                                │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
-│ Script never returned → DOM manipulation     │ Script returns after each render; Streamlit safely reconciles the    │
-│ errors                                       │ component tree                                                       │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
-│ Manual placeholder handling (placeholder =   │ No placeholder needed; Streamlit reruns the whole script cleanly     │
-│ st.empty())                                  │                                                                      │
-├──────────────────────────────────────────────┼──────────────────────────────────────────────────────────────────────┤
-│ Possible stale state if the loop was         │ Fresh state read on every rerun (guaranteed by the file read at the  │
-│ interrupted                                  │ top)                                                                 │
-└──────────────────────────────────────────────┴──────────────────────────────────────────────────────────────────────┘
-
----
-🚀 How to deploy the fix
-)
-
-st.plotly_chart(fig, use_container_width=True)
-
-# ----------------------------------------------------------------------
-# RECENT TRADE LOG (optional)
-# ----------------------------------------------------------------------
-with st.expander("📋 Ver Log de Trading Reciente"):
-    try:
-        log_path = Path(__file__).parent.parent / "trade_log.csv"
-        if log_path.exists():
-            df = pd.read_csv(log_path)
-            # show the last 5 rows, newest on top
-            st.dataframe(df.tail(5).iloc[::-1], use_container_width=True)
-        else:
-            st.info("Aún no hay operaciones registradas")
-    except Exception as e:
-        st.error(f"Error leyendo el log: {e}")
-
-# ----------------------------------------------------------------------
-# End of script – Streamlit will now wait REFRESH_INTERVAL_MS and rerun
-# ----------------------------------------------------------------------
+if st.button("🔄 Forzar actualización ahora"):
+    st.cache_data.clear()
+    st.rerun()
